@@ -1,0 +1,16 @@
+package "temper-hum-hid"
+version "v.0.2"
+purpose "Reads temperature and humidity values from a TEMPerHUM HID device (1130:660c)
+TEMPerHUM HID device is recognized by modern linux distributions as \"Tenx Technology, Inc. Foot Pedal/Thermometer\". It's a device with a Tenx HID chip which controls the onboard SHT1x temperature sensor. No /dev/ttyUSBx is created for such device.
+This program uses corrections to measrements which are described in original SHT1x sensor datasheet. Supports multiple devices.
+There was an eariler revision of TEMPerHUM which did not have a HID chip but was using USB-to-serial CH341 chip instead. If you have such device, use Simon Arlott's program instead: http://github.com/lp0/temperhum"
+
+option "verbose" v "Print debug messages, to standard output if no filename given" string typestr="filename" default="" optional argoptional
+option "syslog" s "Log debug messages to syslog" flag off
+option "log" l "Log data to log file" string typestr="filename" optional
+option "out" o "Output results to a file instead of printing it on screen, can be used for creating a status file which always has latest measurments" string typestr="filename" optional
+option "repeat" r "Constantly print results, repeat every given amount of seconds, devices will be reopened every 1 hour in this mode, 0 for no repeat" int default="0" typestr="seconds" optional
+option "machine" m "Output in machine-friendly format, which is easier to be parsed by bash scripts for later use in monitoring tools, 4ex. Zabbix" flag off
+
+text "Usage example:
+  temper-hum-hid --log=/var/log/temper-hum-hid.log --out=/var/log/temper-hum-hid.status --repeat=60 --machine"
