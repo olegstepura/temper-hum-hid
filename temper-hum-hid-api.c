@@ -34,7 +34,7 @@ static FILE * debug_output;
  */
 static void temperhum_init_syslog()
 {
-	openlog("temper-hum-hid", LOG_CONS, LOG_DEBUG);
+	openlog("temper-hum-hid", LOG_PID | LOG_CONS, LOG_USER);
 	temperhum_options.syslog_initialized = 1;
 }
 
@@ -60,7 +60,7 @@ void temperhum_debug(const char* format, ...)
 		fflush(debug_output);
 	}
 	if (temperhum_options.syslog) {
-		syslog(LOG_MAKEPRI(LOG_USER, LOG_INFO), "%s", message);
+		syslog(LOG_DEBUG, "%s", message);
 	}
 }
 
@@ -80,7 +80,7 @@ void temperhum_error(int exit_program, const char* format, ...)
 	if (!temperhum_options.syslog_initialized) {
 		temperhum_init_syslog();
 	}
-	syslog(LOG_MAKEPRI(LOG_USER, LOG_ERR), "%s", message);
+	syslog(LOG_ERR, "%s", message);
 
 	if (exit_program) {
 		temperhum_close();

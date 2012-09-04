@@ -11,7 +11,7 @@ all: clean $(TARGET)
 gengetopt:
 	gengetopt --file-name=temper-hum-hid-cmd < temper-hum-hid-cmd.ggo
 
-$(TARGET): gengetopt
+$(TARGET): #gengetopt
 	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) temper-hum-hid-api.c temper-hum-hid-cmd.c temper-hum-hid.c -o $@
 
 install:

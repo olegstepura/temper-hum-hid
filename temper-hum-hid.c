@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <syslog.h>
 #include <string.h>
 #include <time.h>
 #include "temper-hum-hid-api.h"
@@ -29,6 +30,8 @@ void open_log_file(int exit_on_error)
 		if (!log_file) {
 			temperhum_error(exit_on_error, "Cannot open log file '%s' for writing (a)", cmd_args.log_arg);
 		}
+	} else {
+		openlog("temper-hum-hid", LOG_PID | LOG_CONS, LOG_USER);
 	}
 }
 
@@ -39,7 +42,7 @@ int temperhum_print_devices(temperhum_device * device)
 {
 	FILE * out_file;
 	char full_report[4096] = {0x00};
-	char log_report[512];
+	char log_report_data[512];
 	int print_result = 1;
 
 	time_t rawtime;
@@ -108,31 +111,39 @@ int temperhum_print_devices(temperhum_device * device)
 			strcat(report, report_line);
 		}
 
+		sprintf(
+			log_report_data,
+			"%03u:%03u-i%u/driver: %i; voltage: %.1f; temperature: %.2f (%i, {0x%02X, 0x%02X}) @ %ibit; humidity: %.2f (%i, {0x%02X, 0x%02X}) @ %ibit; dew point: %.2f",
+			device->bus_number,
+			device->device_number,
+			device->interface_number,
+			device->kernel_driver_detached,
+			device->sensor_voltage,
+			device->temperature,
+			device->raw_temperature,
+			device->raw_temperature_bytes[0] & 0xFF,
+			device->raw_temperature_bytes[1] & 0xFF,
+			device->measurement_resolution_temperature,
+			device->humidity,
+			device->raw_humidity,
+			device->raw_humidity_bytes[0] & 0xFF,
+			device->raw_humidity_bytes[1] & 0xFF,
+			device->measurement_resolution_humidity,
+			device->dew_point
+		);
+
 		if (log_file) {
+			char log_report[512];
+
 			time(&rawtime);
 			timeinfo = localtime(&rawtime);
 			strftime(time_string, 24, "%Y-%m-%d %H:%M:%S", timeinfo);
 			
 			sprintf(
 				log_report,
-				"[%s] temperhum %03u:%03u-i%u/driver: %i; voltage: %.1f; temp: %.2f (%i, {0x%02X, 0x%02X}) @ %ibit; hum: %.2f (%i, {0x%02X, 0x%02X}) @ %ibit; dew: %.2f\n",
+				"[%s] TemperHum %s\n",
 				time_string,
-				device->bus_number,
-				device->device_number,
-				device->interface_number,
-				device->kernel_driver_detached,
-				device->sensor_voltage,
-				device->temperature,
-				device->raw_temperature,
-				device->raw_temperature_bytes[0] & 0xFF,
-				device->raw_temperature_bytes[1] & 0xFF,
-				device->measurement_resolution_temperature,
-				device->humidity,
-				device->raw_humidity,
-				device->raw_humidity_bytes[0] & 0xFF,
-				device->raw_humidity_bytes[1] & 0xFF,
-				device->measurement_resolution_humidity,
-				device->dew_point
+				log_report_data
 			);
 			int result = fputs(log_report, log_file);
 			if (result < 0) {
@@ -140,6 +151,8 @@ int temperhum_print_devices(temperhum_device * device)
 			} else {
 				fflush(log_file);
 			}
+		} else {
+			syslog(LOG_INFO, log_report_data);	
 		}
 
 		if (cmd_args.repeat_arg) {
@@ -215,6 +228,8 @@ int main(int argc, char *argv[])
 
 	if (log_file) {
 		fclose(log_file);
+	} else {
+		closelog();
 	}
 
 	temperhum_close();
