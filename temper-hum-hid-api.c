@@ -99,7 +99,7 @@ void temperhum_debug_bytes(unsigned char * data, int length)
 
 	int i;
 	char byte_sequence[32] = {0};
-	char current_byte[3];
+	char current_byte[4];
 	for (i = 0; i < length; i++) {
 		if ((i % 8) == 0) {
 			if (i > 0) {
@@ -494,17 +494,17 @@ void temperhum_sht1x_fill_temperature(temperhum_device * device)
 	 * +---------+-------+-------+-------+-------+-------+
 	 * | VDD ->  |    5V |    4V |  3.5V |    3V |  2.5V |
 	 * +---------+-------+-------+-------+-------+-------+
-	 * | D1 (°C) | -40.1 | -39.8 | -39.7 | -39.6 | -39.4 |
+	 * | D1 (ï¿½C) | -40.1 | -39.8 | -39.7 | -39.6 | -39.4 |
 	 * +---------+-------+-------+-------+-------+-------+
-	 * | D1 (°F) | -40.2 | -39.6 | -39.5 | -39.3 | -38.9 |
+	 * | D1 (ï¿½F) | -40.2 | -39.6 | -39.5 | -39.3 | -38.9 |
 	 * +---------+-------+-------+-------+-------+-------+
 	 * Table 8.2:
 	 * +---------+-------+-------+
 	 * | SOT ->  | 14bit | 12bit |
 	 * +---------+-------+-------+
-	 * | D2 (°C) |  0.01 |  0.04 |
+	 * | D2 (ï¿½C) |  0.01 |  0.04 |
 	 * +---------+-------+-------+
-	 * | D2 (°F) | 0.018 | 0.072 |
+	 * | D2 (ï¿½F) | 0.018 | 0.072 |
 	 * +---------+-------+-------+
 	 */
 	float D1, D2;
@@ -602,10 +602,10 @@ void temperhum_sht1x_fill_humidity(temperhum_device * device)
 	 * Datasheet SHT1x (SHT10, SHT11, SHT15)
 	 * Humidity and Temperature Sensor IC:
 	 * 
-	 * For temperatures significantly different from 25°C (~77°F) 
+	 * For temperatures significantly different from 25ï¿½C (~77ï¿½F) 
 	 * the humidity signal requires temperature compensation.
 	 * The temperature correction corresponds roughly to 
-	 * 0.12%RH/°C @ 50%RH. Coefficcients for the temperature 
+	 * 0.12%RH/ï¿½C @ 50%RH. Coefficcients for the temperature 
 	 * compensation are given in Table 7. 
 	 *   RH = (TempC - 25) * (T1 + T2 * SORH) + RH_linear
 	 * +---------+---------+---------+
@@ -686,15 +686,15 @@ int temperhum_fill(temperhum_device * device)
 	 * superb dew point measurements.  
 	 * For dew point (Td) calculations there are various formulas 
 	 * to be applied, most of them quite complicated. For  the 
-	 * temperature range of -40 - 50°C the following 
+	 * temperature range of -40 - 50ï¿½C the following 
 	 * approximation provides good accuracy with parameters 
 	 * given in Table 9:
 	 * +-----------------------+---------+-------+
-	 * | Temperature Range     | Tn (°C) |   m   |
+	 * | Temperature Range     | Tn (ï¿½C) |   m   |
 	 * +-----------------------+---------+-------+
-	 * | Above water, 0 - 50°C |  243.12 | 17.62 |
+	 * | Above water, 0 - 50ï¿½C |  243.12 | 17.62 |
 	 * +-----------------------+---------+-------+
-	 * | Above ice, -40 - 0°C  |  272.62 | 22.46 |
+	 * | Above ice, -40 - 0ï¿½C  |  272.62 | 22.46 |
 	 * +-----------------------+---------+-------+
 	 */
 	double Tn = 243.12;
